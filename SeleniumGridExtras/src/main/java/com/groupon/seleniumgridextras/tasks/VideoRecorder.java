@@ -224,7 +224,7 @@ public class VideoRecorder extends ExecuteOSTask {
       URIBuilder uriBuilder = new URIBuilder();
       uriBuilder.setScheme("http");
       uriBuilder.setHost(RuntimeConfig.getHostIp());
-      uriBuilder.setPort(RuntimeConfig.getGridExtrasPort());
+      uriBuilder.setPort(RuntimeConfig.getGridExtrasPort());//Its okay
       uriBuilder.setPath(VideoHttpExecutor.GET_VIDEO_FILE_ENDPOINT + "/" + fileName);
 
       return uriBuilder.build().toString();

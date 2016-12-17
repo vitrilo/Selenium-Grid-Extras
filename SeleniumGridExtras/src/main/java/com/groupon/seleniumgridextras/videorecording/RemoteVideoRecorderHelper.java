@@ -1,6 +1,7 @@
 package com.groupon.seleniumgridextras.videorecording;
 
 import com.groupon.seleniumgridextras.config.RuntimeConfig;
+import com.groupon.seleniumgridextras.grid.proxies.SetupTeardownProxy;
 import com.groupon.seleniumgridextras.tasks.config.TaskDescriptions;
 import com.groupon.seleniumgridextras.utilities.HttpUtility;
 import com.groupon.seleniumgridextras.utilities.json.JsonCodec;
@@ -12,20 +13,24 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import org.openqa.grid.internal.TestSession;
 
 
 public class RemoteVideoRecorderHelper {
     private static Logger logger = Logger.getLogger(RemoteVideoRecorderHelper.class);
 
-    public static String startVideoRecording(String host, String session) {
+    public static String startVideoRecording(TestSession session) {
 
+        String host = session.getSlot().getRemoteURL().getHost();
+        int port = SetupTeardownProxy.calcGridExtractPort(session);
+        String sessionKey = session.getExternalKey().getKey();
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http");
         builder.setHost(host);
-        builder.setPort(RuntimeConfig.getGridExtrasPort());
+        builder.setPort(port);
         builder.setPath(TaskDescriptions.Endpoints.VIDEO);
 
-        Map<String, String> params = getBlankParams(session, JsonCodec.Video.START);
+        Map<String, String> params = getBlankParams(sessionKey, JsonCodec.Video.START);
 
         for (String p : params.keySet()) {
             builder.addParameter(p, params.get(p));
@@ -33,8 +38,8 @@ public class RemoteVideoRecorderHelper {
         URI uri;
         String errorMessage = String.format("Error building URI for host: %s, port: %s, session: %s, action: %s, params: %s",
                 host,
-                RuntimeConfig.getGridExtrasPort(),
-                session,
+                port,
+                sessionKey,
                 JsonCodec.Video.START,
                 params.toString());
         try {
@@ -51,23 +56,26 @@ public class RemoteVideoRecorderHelper {
 
     }
 
-    public static String stopVideoRecording(String host, String session) {
+    public static String stopVideoRecording(TestSession session) {
 
+        String host = session.getSlot().getRemoteURL().getHost();
+        int port = SetupTeardownProxy.calcGridExtractPort(session);
+        String sessionKey = session.getExternalKey().getKey();
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http");
         builder.setHost(host);
-        builder.setPort(RuntimeConfig.getGridExtrasPort());
+        builder.setPort(port);
         builder.setPath(TaskDescriptions.Endpoints.VIDEO);
 
-        Map<String, String> params = getBlankParams(session, JsonCodec.Video.STOP);
+        Map<String, String> params = getBlankParams(sessionKey, JsonCodec.Video.STOP);
         for (String p : params.keySet()) {
             builder.addParameter(p, params.get(p));
         }
         URI uri;
         String errorMessage = String.format("Error building URI for host: %s, port: %s, session: %s, action: %s, params: %s",
                 host,
-                RuntimeConfig.getGridExtrasPort(),
-                session,
+                port,
+                sessionKey,
                 JsonCodec.Video.STOP,
                 params.toString());
         try {
@@ -84,14 +92,17 @@ public class RemoteVideoRecorderHelper {
 
     }
 
-    public static String updateLastAction(String host, String session, String action) {
+    public static String updateLastAction(TestSession session, String action) {
+        String host = session.getSlot().getRemoteURL().getHost();
+        int port = SetupTeardownProxy.calcGridExtractPort(session);
+        String sessionKey = session.getExternalKey().getKey();
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http");
         builder.setHost(host);
-        builder.setPort(RuntimeConfig.getGridExtrasPort());
+        builder.setPort(port);
         builder.setPath(TaskDescriptions.Endpoints.VIDEO);
 
-        Map<String, String> params = getBlankParams(session, JsonCodec.Video.HEARTBEAT);
+        Map<String, String> params = getBlankParams(sessionKey, JsonCodec.Video.HEARTBEAT);
         params.put(JsonCodec.Video.DESCRIPTION, action);
 
         for (String p : params.keySet()) {
@@ -100,8 +111,8 @@ public class RemoteVideoRecorderHelper {
         URI uri;
         String errorMessage = String.format("Error building URI for host: %s, port: %s, session: %s, action: %s, params: %s",
                 host,
-                RuntimeConfig.getGridExtrasPort(),
-                session,
+                port,
+                sessionKey,
                 JsonCodec.Video.HEARTBEAT,
                 params.toString());
         try {

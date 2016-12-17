@@ -110,8 +110,7 @@ public class RemoteVideoRecordingControlCallable implements Callable {
 
     protected String updateLastAction() {
         String m = RemoteVideoRecorderHelper.updateLastAction(
-                this.session.getSlot().getRemoteURL().getHost(),
-                this.session.getExternalKey().getKey(),
+                this.session,
                 this.lastAction);
 
         logger.debug(m);
@@ -119,9 +118,7 @@ public class RemoteVideoRecordingControlCallable implements Callable {
     }
 
     protected String stopVideo() {
-        String m = RemoteVideoRecorderHelper.stopVideoRecording(
-                this.session.getSlot().getRemoteURL().getHost(),
-                this.session.getExternalKey().getKey());
+        String m = RemoteVideoRecorderHelper.stopVideoRecording(this.session);
 
         logger.debug(m);
 
@@ -129,9 +126,7 @@ public class RemoteVideoRecordingControlCallable implements Callable {
     }
 
     protected String startVideo() {
-        return RemoteVideoRecorderHelper.startVideoRecording(
-                this.session.getSlot().getRemoteURL().getHost(),
-                this.session.getExternalKey().getKey());
+        return RemoteVideoRecorderHelper.startVideoRecording(this.session);
     }
 
 

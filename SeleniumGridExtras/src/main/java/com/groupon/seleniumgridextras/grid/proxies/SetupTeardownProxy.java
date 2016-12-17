@@ -112,7 +112,7 @@ public class SetupTeardownProxy extends DefaultRemoteProxy implements TestSessio
             CommonThreadPool.startCallable(
                     new RemoteGridExtrasAsyncCallable(
                             host,
-                            RuntimeConfig.getGridExtrasPort(),
+                            calcGridExtractPort(session),
                             TaskDescriptions.Endpoints.SETUP,
                             new HashMap<String, String>()));
 
@@ -151,7 +151,7 @@ public class SetupTeardownProxy extends DefaultRemoteProxy implements TestSessio
             CommonThreadPool.startCallable(
                     new RemoteGridExtrasAsyncCallable(
                             this.getRemoteHost().getHost(),
-                            RuntimeConfig.getGridExtrasPort(),
+                            calcGridExtractPort(session),
                             TaskDescriptions.Endpoints.KILL_IE,
                             new HashMap<String, String>()));
         }
@@ -166,22 +166,25 @@ public class SetupTeardownProxy extends DefaultRemoteProxy implements TestSessio
                 RuntimeConfig.load(false);
             }
             if (RuntimeConfig.getConfig().getVideoRecording().getVideosToKeep() > 0 && !(RuntimeConfig.getConfig().getAutoStartHub() && RuntimeConfig.getConfig().getAutoStartNode())) {
+		    
+		    
                 CommonThreadPool.startCallable(
                         new VideoDownloaderCallable(
                                 session.getExternalKey().getKey(),
-                                session.getSlot().getRemoteURL().getHost()));
+                                session.getSlot().getRemoteURL().getHost(), calcGridExtractPort(session)));
             }
         }
 
+	   	
         CommonThreadPool.startCallable(
                 new RemoteGridExtrasAsyncCallable(
                         this.getRemoteHost().getHost(),
-                        RuntimeConfig.getGridExtrasPort(),
+                        calcGridExtractPort(session),
                         TaskDescriptions.Endpoints.TEARDOWN,
                         new HashMap<String, String>()));
 
 
-        if (NodeRestartCallable.timeToReboot(this.getRemoteHost().getHost(), this.getId())) {
+        if (NodeRestartCallable.timeToReboot(this.getRemoteHost().getHost(), this.getId(), session)) {
             this.setAvailable(false);
             this.setRestarting(true);
 
@@ -191,7 +194,16 @@ public class SetupTeardownProxy extends DefaultRemoteProxy implements TestSessio
                             session));
         }
     }
-
+    
+    public static int calcGridExtractPort(TestSession session){
+        int seleniumPort = session.getSlot().getRemoteURL().getPort();
+        if(seleniumPort == 5555){
+            return 3000;
+        }
+        //5555=3000		   
+        return seleniumPort-2555;
+    }
+    
     private boolean alreadyRecordingCurrentSession(TestSession session) {
         if ((session.getExternalKey() == null) || !getSessionsRecording().contains(session.getExternalKey().getKey())) {
             return false;

@@ -25,11 +25,14 @@ public class VideoDownloaderCallable implements Callable {
     private final URI uri;
     private final int ATTEMPTS_TO_DOWNLOAD = 5;
     private final int TIME_TO_WAIT_BETWEEN_ATTEMPTS = 30000;
+    private int gridExtractPort;
 
-    public VideoDownloaderCallable(String session, String host) {
+    public VideoDownloaderCallable(String session, String host, int gridExtractPort) {
         logger.info(String.format("New instance for session: %s host: %s", session, host));
         this.session = session;
         this.host = host;
+        this.gridExtractPort = gridExtractPort;
+	
         this.uri = buildVideoStatusUri();
 
     }
@@ -186,7 +189,7 @@ public class VideoDownloaderCallable implements Callable {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http");
         builder.setHost(this.host);
-        builder.setPort(3000);
+        builder.setPort(this.gridExtractPort);
         builder.setPath(TaskDescriptions.Endpoints.VIDEO);
 
         try {

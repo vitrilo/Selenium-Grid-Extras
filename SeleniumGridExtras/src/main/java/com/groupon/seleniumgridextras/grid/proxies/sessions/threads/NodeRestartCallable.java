@@ -50,7 +50,7 @@ public class NodeRestartCallable implements Callable {
         }
 
         stopGridNode();
-        NodeRestartCallable.rebootGridExtrasNode(proxy.getRemoteHost().getHost());
+        rebootGridExtrasNode(proxy.getRemoteHost().getHost());
 
         logger.info(String.format("Proxy restart command sent for %s", proxy.getId()));
         return "Done";
@@ -76,12 +76,12 @@ public class NodeRestartCallable implements Callable {
     }
 
 
-    public static void rebootGridExtrasNode(String host) {
+    public void rebootGridExtrasNode(String host) {
         logger.info("Asking SeleniumGridExtras to reboot node" + host);
         Future<String> f = CommonThreadPool.startCallable(
                 new RemoteGridExtrasAsyncCallable(
                         host,
-                        RuntimeConfig.getGridExtrasPort(),
+                        SetupTeardownProxy.calcGridExtractPort(this.session),
                         TaskDescriptions.Endpoints.REBOOT,
                         new HashMap<String, String>()));
         try {
@@ -102,7 +102,7 @@ public class NodeRestartCallable implements Callable {
         Future<String> f = CommonThreadPool.startCallable(
                 new RemoteGridExtrasAsyncCallable(
                         proxy.getRemoteHost().getHost(),
-                        RuntimeConfig.getGridExtrasPort(),
+                        SetupTeardownProxy.calcGridExtractPort(this.session),
                         TaskDescriptions.Endpoints.STOP_GRID,
                         params));
 
@@ -118,11 +118,11 @@ public class NodeRestartCallable implements Callable {
         proxy.addNewEvent(new RemoteUnregisterException(String.format("Taking proxy %s offline", proxy.getId())));
     }
 
-    public static boolean timeToReboot(String nodeHost, String proxyId) {
+    public static boolean timeToReboot(String nodeHost, String proxyId, TestSession session) {
         Future<String> f = CommonThreadPool.startCallable(
                 new RemoteGridExtrasAsyncCallable(
                         nodeHost,
-                        RuntimeConfig.getGridExtrasPort(),
+                        SetupTeardownProxy.calcGridExtractPort(session),
                         TaskDescriptions.Endpoints.GRID_STATUS,
                         new HashMap<String, String>()));
 
